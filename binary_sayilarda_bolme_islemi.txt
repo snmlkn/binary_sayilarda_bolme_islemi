@@ -1,0 +1,65 @@
+----------------------------------------------------------------------------------
+binary sayılarda bölme işlemi
+---------------------------------------------------------------------------------
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use ieee.std_logic_unsigned.all;
+
+entity uygulama2 is
+	Generic(n : natural:= 4);
+	Port(
+	clk: in std_logic;
+	rst: in std_logic;
+	bolunen: in std_logic_vector(2*n-1 downto 0);
+	bolen: in std_logic_vector(n-1 downto 0);
+	bolum: out std_logic_vector(2*n-1 downto 0);
+	kalan: out std_logic_vector(n-1 downto 0)
+);
+
+end uygulama2;
+
+architecture Behavioral of uygulama2 is
+	signal n1: std_logic_vector(n downto 0):= (others =>'0');
+	signal n2: std_logic_vector(2*n-1 downto 0);
+	signal d: std_logic_vector(n-1 downto 0);
+	signal durum: std_logic_vector(1 downto 0) :="00";
+	signal indis,sayac: natural :=0;
+begin
+	process(clk,rst)
+		begin
+		   if rst ='1' then
+		     indis<=0;
+		     sayac<=0;
+		     n1 <=(others=>'0');
+   		     n2 <=(others=>'0');
+		 elsif rising_edge(clk) then
+			sayac<=sayac+1;
+			case durum is
+
+				when "00"=>
+				n2 <= bolunen;
+				d<= bolen;
+				durum<="01";
+				when "01"=>
+					if indis < 2*n then
+					   n1<= n1(n-1 downto 0) & n2(2*n-1);
+					   n2<= n2(2*n-2 downto 0) & '0';
+					end if;
+					indis <=indis+1;
+					durum <= "10";
+				when "10"=>
+				if indis <= 2*n then 
+					if n1>= d then
+					   n1<=n1-d;
+					   n2(0)<='1';
+					else 
+						durum <="11";
+					end if;
+				end if;
+				when others=>
+					bolum <= n2;
+					kalan<=n1(n-1 downto 0);
+			end case;
+		   end if;
+	end process;
+end Behavioral;
